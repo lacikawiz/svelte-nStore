@@ -4,8 +4,8 @@ A Svelte Store replacement with easy computed values
 I created this little module when refactoring a current project. But it's a very general purpose one, so I'm sharing it.
 
 Stores in Svelte are great but are missing a couple of points:
-- Getting the current value, when not subscribed to a store is a pain in the rear (and there are legitimate cases when it's needed)
-- Creating computer/dependent stores is a bit cumbersome
+- Getting the current value, when not subscribed to a store is not effective [see notes for `get(myStore)` in the Svelte API doc](https://svelte.dev/docs#get)
+- Creating computer/dependent stores is a bit cumbersome (It uses an array to list the dependencies, which then passed to the calculation function which has to know the exact sequence of stores in the array. It's simple for a few dependencies but gets ugly when there are more than 5 dependencies)
 
 So, I created a general purpose store which is a replacement for the `writable` store in `svelte/store`. Fullfils the [Svelte store contract](https://svelte.dev/docs#Store_contract) and has additional features for the above two points.
 
