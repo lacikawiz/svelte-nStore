@@ -7,9 +7,14 @@ Stores in Svelte are great but are missing a couple of points:
 - Getting the current value, when not subscribed to a store is a pain in the rear (and there are legitimate cases when it's needed)
 - Creating computer/dependent stores is a bit cumbersome
 
-So, I created a general purpose store which is a replacement for the `writable` store in `svelte/store`. Fullfils the [Svelte store contract](https://svelte.dev/docs#Store_contract) and has additional features for the above two point.
+So, I created a general purpose store which is a replacement for the `writable` store in `svelte/store`. Fullfils the [Svelte store contract](https://svelte.dev/docs#Store_contract) and has additional features for the above two points.
 
-The code is based largely on [trkl.js](https://github.com/jbreckmckye/trkl). Which is a very brilliant, tiny observable library. I turned it into typescript and gutted some things which were not needed for this use case. 
+The code is based largely on [trkl.js](https://github.com/jbreckmckye/trkl). Which is a very brilliant, tiny observable library. I turned it into typescript and gutted some things which were not needed for this use case. So it's still tiny. Less than 600 bytes in the minified version. 
+
+I provided 3 versions:
+- The original Typescript 
+- The compiled .js
+- Minified .js
 
 ## USAGE
 
