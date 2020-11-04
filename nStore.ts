@@ -8,17 +8,21 @@ type nStoreT = {
   get: () => any,
 }
 
-// Computations are a tuple of: [ subscriber ]
+// Tracking for dependencies & to detect circularity
 let computedTracker: any[] = [];
 
 /**
  * nStore: Svelte store contract compatible object with advanced features.
  * 
  * Usage: 
- * - nStore(initVal) - create a new store
+ * - nStore(initVal) - create a new store with an initial value
  * - nStore(()=>{..}) - create a computed value. Inside the function, use the `.get` method of the other nStore variables in order to signal dependency
  * 
- * @param value 
+ * Methods provided.
+ * - subscribe(fn) : standard [Svelte Store subscribe](https://svelte.dev/docs#Store_contract)
+ * - set(value) : updates the value, and calls subscribers if value is different from previous
+ * - update(fn) : runs the given function with the current value as its parameter and sets the value to the result of the function
+ * - get() : returns the current value of the store
  */
 function nStore(value:any):nStoreT {
   let subscribers: ((val:any,oldVal?:any)=>void)[] = [];
