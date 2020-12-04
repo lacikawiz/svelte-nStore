@@ -1,11 +1,12 @@
 //Based on source: https://github.com/jbreckmckye/trkl
 
-type updateFnT = (value: any) => void
-type nStoreT = {
-  subscribe: (subscription: updateFnT) => (() => void),
-  set: updateFnT,
-  update: (updateFn: (value: any) => any) => void,
-  get: () => any,
+type updateFnT<T> = (value: T) => void
+export type nStoreT<T> = {
+  subscribe: (subscription: updateFnT<T>) => (() => void),
+  set: updateFnT<T>,
+  update: (updateFn: (value: T) => T) => void,
+  get: () => T,
+  refresh: () => void,
 }
 
 // Tracking for dependencies & to detect circularity
@@ -24,7 +25,7 @@ let computedTracker: any[] = [];
  * - update(fn) : runs the given function with the current value as its parameter and sets the value to the result of the function
  * - get() : returns the current value of the store
  */
-function nStore(value:any):nStoreT {
+function nStore<T>(value:T):nStoreT<T> {
   let subscribers: ((val:any,oldVal?:any)=>void)[] = [];
 
   let subscribe = (subscriber: (val: any) => void, immediate=true) => {
@@ -53,20 +54,29 @@ function nStore(value:any):nStoreT {
   }
 
   //if the initial value is a function then we treat it as a `computed`
-  if (typeof(value) == "function") return computed(value);
+  if (typeof(value) == "function") return computed((value as unknown) as ()=>T);
+
+  /**
+   * does a push update, calls all subscribers with the current value
+   * Useful for when the stored variable is an Object, Array, Set, etc and the operations on those don't trigger an update, but can be triggered with this
+   */
+  function refresh() {
+    for (let sub of subscribers) { sub(value, value) }
+  }
 
   return {
     subscribe,
     set,
     get,
-    update: (updFn: updateFnT) => {
+    refresh,
+    update: (updFn: updateFnT<T>) => {
       if (typeof (updFn) !== "function") return
       set(updFn(value))
     }
   }
 }
 
-function computed(fn: ()=>any ) {
+function computed<T>(fn: ()=>T ) {
   let self = nStore(null);
   let computationToken: (()=>void)[] = [runComputed]
 

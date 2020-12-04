@@ -16,12 +16,13 @@ let computedTracker = [];
  */
 function nStore(value) {
     let subscribers = [];
-    let subscribe = (subscriber, immediate = true) => {
+    let subscribe = function (subscriber, immediate) {
+        if (immediate === void 0) { immediate = true; }
         if (!subscribers.includes(subscriber))
             subscribers.push(subscriber);
         if (immediate)
             subscriber(value);
-        return () => { subscribers = subscribers.filter(xSub => xSub != subscriber); };
+        return function () { subscribers = subscribers.filter(function (xSub) { return xSub != subscriber; }); };
     };
     function set(newValue) {
         if (newValue === value && (value === null || typeof value !== 'object')) {
@@ -29,7 +30,8 @@ function nStore(value) {
         }
         let oldValue = value;
         value = newValue;
-        for (let sub of subscribers) {
+        for (let _i = 0, subscribers_1 = subscribers; _i < subscribers_1.length; _i++) {
+            let sub = subscribers_1[_i];
             sub(value, oldValue);
         }
     }
@@ -43,11 +45,22 @@ function nStore(value) {
     //if the initial value is a function then we treat it as a `computed`
     if (typeof (value) == "function")
         return computed(value);
+    /**
+     * does a push update, calls all subscribers with the current value
+     * Useful for when the stored variable is an Object, Array, Set, etc and the operations on those don't trigger an update, but can be triggered with this
+     */
+    function refresh() {
+        for (let _i = 0, subscribers_2 = subscribers; _i < subscribers_2.length; _i++) {
+            let sub = subscribers_2[_i];
+            sub(value, value);
+        }
+    }
     return {
-        subscribe,
-        set,
-        get,
-        update: (updFn) => {
+        subscribe: subscribe,
+        set: set,
+        get: get,
+        refresh: refresh,
+        update: function (updFn) {
             if (typeof (updFn) !== "function")
                 return;
             set(updFn(value));
@@ -76,4 +89,5 @@ function computed(fn) {
         self.set(result);
     }
 }
+
 export default nStore;
